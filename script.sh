@@ -2,6 +2,17 @@
 
 DISTRO=$(lsb_release -i | awk -F: '{print $2}' | xargs)
 
+if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    if [ "$ID" == "arch" ]; then
+        DISTRO="Arch"
+    # elif [[ "$ID" == "ubuntu"  || "$ID" == "pop" ]]; then
+    #     DISTRO="Debian"
+    # fi
+fi
+
+
+
 echo ""
 echo "Installing packages"
 sleep 3
@@ -13,12 +24,25 @@ sleep 3
 
 echo "Full system upgrade"
 sleep 3
-sudo apt update && sudo apt upgrade -y
+if [[ "$DISTRO" == 'Arch' ]]; then
+   sudo pacman -Syu --noconfirm
+
+elif [[ "$DISTRO" == 'Ubuntu' || "$DISTRO" == 'Pop' ]]; then
+    sudo apt update && sudo apt upgrade -y
+elif [[ "$DISTRO" == 'Fedora' ]]; then
+    sudo dnf update -y && sudo dnf upgrade -y
+fi
 sleep 3
+
+
 
 echo "Installing system essentials"
 sleep 3
-sudo apt install -y preload ubuntu-drivers-common vlc virtualbox libfuse2 gnome-tweaks ntfs-3g
+
+if [[ "$DISTRO" == 'Ubuntu' || "$DISTRO" == 'Pop' ]]; then
+    sudo apt install -y preload ubuntu-drivers-common vlc virtualbox libfuse2 gnome-tweaks ntfs-3g
+
+
 
 echo "Installing auto-cpufreq"
 sleep 3
